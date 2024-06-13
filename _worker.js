@@ -30,7 +30,7 @@ let addresses = [
 
 // 设置优选地址api接口
 let addressesapi = [
-	'https://cmlrgwenben.pages.dev/ip2.txt?token=313160', //可参考内容格式 自行搭建。
+	'https://cmlrgwenben.pages.dev/ip.txt?token=313160', //可参考内容格式 自行搭建。
 	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
 ];
 
