@@ -7,7 +7,7 @@ let mytoken= ['auto'];//快速订阅访问入口, 留空则不启动快速订阅
 let addresses = [
 'ca.ljwbh.filegear-sg.me:2087#优选域名－A',
 	'www.kanju8.com:8443#www.kanju8.com',
-	'm.xinpian8.com:8443#m.xinpian8.com',
+	'zula.ir:80#zula.ir',
 	'www.xinpian8.com:8443#www.xinpian8.com',
 	'www.yy4080dy.com:8443#www.yy4080dy.com',
 	'www.visa.com.tw:8443#www.visa.com.tw',
