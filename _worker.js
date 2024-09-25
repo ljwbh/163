@@ -5,13 +5,14 @@ let mytoken= ['auto'];//快速订阅访问入口, 留空则不启动快速订阅
 
 // 设置优选地址，不带端口号默认443，TLS订阅生成
 let addresses = [
-'ca.ljwbh.filegear-sg.me:24238#优选域名－A',
+	'ca.ljwbh.filegear-sg.me:24238#优选－B',
 	'melina.ns.cloudflare.com:443#melina',
 	'kaiser.ns.cloudflare.com:443#kaiser',
 	'thaddeus.ns.cloudflare.com:443#thaddeus',
 	'romina.ns.cloudflare.com:443#romina',
 	'www.iios.me:8443#www.iios.me',
 	'www.iios.club:8443#www.iios.club',
+];
 // 设置优选地址api接口
 let addressesapi = [
 	'https://cmlrgwenben.pages.dev/ip.txt?token=313160', //可参考内容格式 自行搭建。
