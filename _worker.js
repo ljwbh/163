@@ -11,7 +11,6 @@ let addresses = [
 	'www.visa.com.hk:443#visa.com.hk',
 	'www.udacity.com:443#udacity.com',
 	'www.visa.com:443#visa.com',
-	'whatismyipaddress.com:443#whatismyipaddress.com',
 ];
 // 设置优选地址api接口
 let addressesapi = [
