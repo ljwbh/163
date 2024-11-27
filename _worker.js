@@ -1,7 +1,7 @@
-
+ 
 // 部署完成后在网址后面加上这个，获取订阅器默认节点，/auto
 
-let mytoken= ['auto'];//快速订阅访问入口, 留空则不启动快速订阅
+let mytoken= ['www'];//快速订阅访问入口, 留空则不启动快速订阅
 
 // 设置优选地址，不带端口号默认443，TLS订阅生成
 let addresses = [
@@ -46,7 +46,7 @@ let proxyIPs = [//无法匹配到节点名就随机分配以下ProxyIP域名
 let CMproxyIPs = [
 	//'proxyip.aliyun.fxxk.dedyn.io#HK',//匹配节点名, 有HK就分配该ProxyIP域名
 ]
-let socks5DataURL = '';//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/socks5Data'
+let SOCKS5DataURL = '';
 let BotToken ='';
 let ChatID =''; 
 let proxyhosts = [//本地代理域名池
@@ -90,7 +90,6 @@ async function sendMessage(type, ip, add_data = "") {
 		});
 	}
 }
-
 let MamaJustKilledAMan = ['telegram','twitter','miaoko'];
 let proxyIPPool = [];
 async function getAddressesapi(api) {
@@ -231,7 +230,6 @@ async function ADD(envadd) {
 	//console.log(add);
 	return add ;
 }
-
 async function nginx() {
 	const text = `
 	<!DOCTYPE html>
@@ -263,18 +261,18 @@ async function nginx() {
 	return text ;
 }
 
-let protocol;
-let socks5Data;
+let SOCKS5Data;
+
 export default {
-	async fetch (request, env) {
-		if (env.TOKEN) mytoken = await ADD(env.TOKEN);
+  async fetch(request, env, ctx) {
+	if (env.TOKEN) mytoken = await ADD(env.TOKEN);
 		//mytoken = env.TOKEN.split(',') || mytoken;
 		BotToken = env.TGTOKEN || BotToken;
 		ChatID = env.TGID || ChatID; 
 		subconverter = env.SUBAPI || subconverter;
 		subconfig = env.SUBCONFIG || subconfig;
 		FileName = env.SUBNAME || FileName;
-		socks5DataURL = env.SOCKS5DATA || socks5DataURL;
+		SOCKS5DataURL = env.SOCKS5DATA || SOCKS5DataURL;
 		if (env.CMPROXYIPS) CMproxyIPs = await ADD(env.CMPROXYIPS);;
 		if (env.CFPORTS) httpsPorts = await ADD(env.CFPORTS);
 		//console.log(CMproxyIPs);
@@ -287,9 +285,10 @@ export default {
 		let uuid = "";
 		let path = "";
 		let sni = "";
-		let type = "ws";
+		let type = "WS".toLocaleLowerCase();
 		let UD = Math.floor(((timestamp - Date.now())/timestamp * 99 * 1099511627776 * 1024)/2);
 		if (env.UA) MamaJustKilledAMan = MamaJustKilledAMan.concat(await ADD(env.UA));
+		
 
 		const currentDate = new Date();
 		const fakeUserIDMD5 = await MD5MD5(Math.ceil(currentDate.getTime()));
@@ -309,34 +308,20 @@ export default {
 		if (env.ADDCSV) addressescsv = await ADD(env.ADDCSV);
 		DLS = env.DLS || DLS;
 
-		/*
-		console.log(`
-			addresses: ${addresses}
-			addressesapi: ${addressesapi}
-			addressesnotls: ${addressesnotls}
-			addressesnotlsapi: ${addressesnotlsapi}
-			addressescsv: ${addressescsv}
-			DLS: ${DLS}
-		`);
-		*/
-		
-		if (socks5DataURL) {
+		if (SOCKS5DataURL) {
 			try {
-				const response = await fetch(socks5DataURL);
-				const socks5DataText = await response.text();
-				if (socks5DataText.includes('\r\n')){
-					socks5Data = socks5DataText.split('\r\n').filter(line => line.trim() !== '');
+				const response = await fetch(SOCKS5DataURL);
+				const SOCKS5DataText = await response.text();
+				if (SOCKS5DataText.includes('\r\n')){
+					SOCKS5Data = SOCKS5DataText.split('\r\n').filter(line => line.trim() !== '');
 				} else {
-					socks5Data = socks5DataText.split('\n').filter(line => line.trim() !== '');
+					SOCKS5Data = SOCKS5DataText.split('\n').filter(line => line.trim() !== '');
 				}
 			} catch {
-				socks5Data = null ;
+				SOCKS5Data = null ;
 			}
 		}
-		
 		if (env.PROXYIP) proxyIPs = await ADD(env.PROXYIP);
-		//console.log(proxyIPs);
-
 		if (mytoken.length > 0 && mytoken.some(token => url.pathname.includes(token))) {
 			host = "null";
 			if (env.HOST) {
@@ -378,7 +363,7 @@ export default {
 			host = url.searchParams.get('host');
 			uuid = url.searchParams.get('uuid') || url.searchParams.get('password') || url.searchParams.get('pw');
 			path = url.searchParams.get('path');
-			sni = url.searchParams.get('sni') || host;
+			sni = url.searchParams.get("SNI".toLocaleLowerCase()) || host;
 			type = url.searchParams.get('type') || type;
 			edgetunnel = url.searchParams.get('edgetunnel') || url.searchParams.get('epeius') || edgetunnel;
 			RproxyIP = url.searchParams.get('proxyip') || RproxyIP;
@@ -408,7 +393,7 @@ export default {
 				const responseText = `
 			缺少必填参数：host 和 uuid
 			Missing required parameters: host and uuid
-			?????????? ????? ???? ????: ???? ? ???????
+			پارامترهای ضروری وارد نشده: هاست و یوآی‌دی
 			
 			${url.origin}/sub?host=[your host]&uuid=[your uuid]&path=[your path]
 			
@@ -434,7 +419,6 @@ export default {
 				path = (path[0] === '/') ? path : '/' + path;
 			}
 		}
-		
 		if (host.toLowerCase().includes('notls') || host.toLowerCase().includes('worker') || host.toLowerCase().includes('trycloudflare')) noTLS = 'true';
 		noTLS = env.NOTLS || noTLS;
 		let subconverterUrl = generateFakeInfo(url.href, uuid, host);
@@ -488,7 +472,6 @@ export default {
 			
 			// 使用Set对象去重
 			const uniqueAddresses = [...new Set(addresses)];
-			
 			let notlsresponseBody;
 			if(noTLS == 'true' && 协议类型 == 'VLESS'){
 				const newAddressesnotlsapi = await getAddressesapi(addressesnotlsapi);
@@ -546,9 +529,9 @@ export default {
 						// 初始化找到的proxyIP为null
 						let foundProxyIP = null;
 					
-						if (socks5Data) {
-							const socks5 = getRandomProxyByMatch(lowerAddressid, socks5Data);
-							path = `/${socks5}`;
+						if (SOCKS5Data) {
+							const SOCKS5 = getRandomProxyByMatch(lowerAddressid, SOCKS5Data);
+							path = `/${SOCKS5}`;
 						} else {
 							// 遍历CMproxyIPs数组查找匹配项
 							for (let item of CMproxyIPs) {
@@ -572,9 +555,9 @@ export default {
 						}
 					}
 
-					const vlessLink = `\u0076\u006c\u0065\u0073\u0073\u003a\u002f\u002f${uuid}@${address}:${port}\u003f\u0065\u006e\u0063\u0072\u0079\u0070\u0074\u0069\u006f\u006e\u003dnone&security=&type=${type}&host=${host}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
+					const 	VlessLink = `\u0076\u006c\u0065\u0073\u0073\u003a\u002f\u002f${uuid}@${address}:${port}\u003f\u0065\u006e\u0063\u0072\u0079\u0070\u0074\u0069\u006f\u006e\u003dnone&security=&type=${type}&host=${host}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
 			
-					return vlessLink;
+					return VlessLink;
 
 				}).join('\n');
 			}
@@ -628,9 +611,9 @@ export default {
 					// 初始化找到的proxyIP为null
 					let foundProxyIP = null;
 				
-					if (socks5Data) {
-						const socks5 = getRandomProxyByMatch(lowerAddressid, socks5Data);
-						path = `/${socks5}`;
+					if (SOCKS5Data) {
+						const SOCKS5 = getRandomProxyByMatch(lowerAddressid, SOCKS5Data);
+						path = `/${SOCKS5}`;
 					} else {
 						// 遍历CMproxyIPs数组查找匹配项
 						for (let item of CMproxyIPs) {
@@ -668,15 +651,14 @@ export default {
 				}
 
 				if (协议类型 == 'Trojan'){
-					const trojanLink = `trojan://${uuid}@${address}:${port}?security=tls&sni=${sni}&alpn=http%2F1.1&fp=randomized&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
-					return trojanLink;
+					const TrojanLink = `${"Trojan".toLocaleLowerCase()}://${uuid}@${address}:${port}?security=tls&${"SNI".toLocaleLowerCase()}=${sni}&alpn=http%2F1.1&fp=randomized&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+					return TrojanLink;
 				} else {
-					const vlessLink = `\u0076\u006c\u0065\u0073\u0073\u003a\u002f\u002f${uuid}@${address}:${port}\u003f\u0065\u006e\u0063\u0072\u0079\u0070\u0074\u0069\u006f\u006e\u003dnone&security=tls&sni=${sni}&alpn=http%2F1.1&fp=random&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
-					return vlessLink;
+					const VlessLink = `\u0076\u006c\u0065\u0073\u0073\u003a\u002f\u002f${uuid}@${address}:${port}\u003f\u0065\u006e\u0063\u0072\u0079\u0070\u0074\u0069\u006f\u006e\u003dnone&security=tls&${"SNI".toLocaleLowerCase()}=${sni}&alpn=http%2F1.1&fp=random&type=${type}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+					return VlessLink;
 				}
 
 			}).join('\n');
-			
 			let combinedContent = responseBody; // 合并内容
 			
 			if (link) {
@@ -735,84 +717,39 @@ export default {
 	
 				return response;
 			}
-
-		}
-
-		try {
-			const subconverterResponse = await fetch(subconverterUrl);
-			
-			if (!subconverterResponse.ok) {
-				throw new Error(`Error fetching subconverterUrl: ${subconverterResponse.status} ${subconverterResponse.statusText}`);
-			}
+			try {
+				const subconverterResponse = await fetch(subconverterUrl);
 				
-			let subconverterContent = await subconverterResponse.text();
-
-			if (协议类型 == 'Trojan' && (userAgent.includes('surge') || (format === 'surge' && !userAgent.includes('subconverter')) ) && !userAgent.includes('cf-workers-sub')){
-				subconverterContent = surge(subconverterContent, host);
+				if (!subconverterResponse.ok) {
+					throw new Error(`Error fetching subconverterUrl: ${subconverterResponse.status} ${subconverterResponse.statusText}`);
+				}
+					
+				let subconverterContent = await subconverterResponse.text();
+	
+				if (协议类型 == 'Trojan' && (userAgent.includes('surge') || (format === 'surge' && !userAgent.includes('subconverter')) ) && !userAgent.includes('cf-workers-sub')){
+					subconverterContent = surge(subconverterContent, host);
+				}
+				subconverterContent = revertFakeInfo(subconverterContent, uuid, host);
+				return new Response(subconverterContent, {
+					headers: { 
+						"Content-Disposition": `attachment; filename*=utf-8''${encodeURIComponent(FileName)}; filename=${FileName}`,
+						"content-type": "text/plain; charset=utf-8",
+						"Profile-Update-Interval": `${SUBUpdateTime}`,
+						"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
+					},
+				});
+			} catch (error) {
+				return new Response(`Error: ${error.message}`, {
+					status: 500,
+					headers: { 'content-type': 'text/plain; charset=utf-8' },
+				});
 			}
-			subconverterContent = revertFakeInfo(subconverterContent, uuid, host);
-			return new Response(subconverterContent, {
-				headers: { 
-					"Content-Disposition": `attachment; filename*=utf-8''${encodeURIComponent(FileName)}; filename=${FileName}`,
-					"content-type": "text/plain; charset=utf-8",
-					"Profile-Update-Interval": `${SUBUpdateTime}`,
-					"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${total}; expire=${expire}`,
-				},
-			});
-		} catch (error) {
-			return new Response(`Error: ${error.message}`, {
-				status: 500,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-			});
-		}
-	}
-};
-
-function surge(content, url) {
-	let 每行内容;
-	if (content.includes('\r\n')){
-		每行内容 = content.split('\r\n');
-	} else {
-		每行内容 = content.split('\n');
-	}
-
-	let 输出内容 = "";
-	for (let x of 每行内容) {
-		if (x.includes('= trojan,')) {
-			const host = x.split("sni=")[1].split(",")[0];
-			const 备改内容 = `skip-cert-verify=true, tfo=false, udp-relay=false`;
-			const 正确内容 = `skip-cert-verify=true, ws=true, ws-path=/?ed=2560, ws-headers=Host:"${host}", tfo=false, udp-relay=false`;
-			输出内容 += x.replace(new RegExp(备改内容, 'g'), 正确内容).replace("[", "").replace("]", "") + '\n';
-		} else {
-			输出内容 += x + '\n';
-		}
-	}
-
-	输出内容 = `#!MANAGED-CONFIG ${url.href} interval=86400 strict=false` + 输出内容.substring(输出内容.indexOf('\n'));
-	return 输出内容;
+  }
+  return new Response('Hello World!');
+}
 }
 
-function getRandomProxyByMatch(CC, socks5Data) {
-	// 将匹配字符串转换为小写
-	const lowerCaseMatch = CC.toLowerCase();
-	
-	// 过滤出所有以指定匹配字符串结尾的代理字符串
-	let filteredProxies = socks5Data.filter(proxy => proxy.toLowerCase().endsWith(`#${lowerCaseMatch}`));
-	
-	// 如果没有匹配的代理，尝试匹配 "US"
-	if (filteredProxies.length === 0) {
-		filteredProxies = socks5Data.filter(proxy => proxy.toLowerCase().endsWith(`#us`));
-	}
-	
-	// 如果还是没有匹配的代理，从整个代理列表中随机选择一个
-	if (filteredProxies.length === 0) {
-		return socks5Data[Math.floor(Math.random() * socks5Data.length)];
-	}
-	
-	// 从匹配的代理中随机选择一个并返回
-	const randomProxy = filteredProxies[Math.floor(Math.random() * filteredProxies.length)];
-	return randomProxy;
-}
+
 
 async function MD5MD5(text) {
 	const encoder = new TextEncoder();
@@ -828,21 +765,11 @@ async function MD5MD5(text) {
 	return secondHex.toLowerCase();
 }
 
-function revertFakeInfo(content, userID, hostName) {
-	content = content.replace(new RegExp(fakeUserID, 'g'), userID).replace(new RegExp(fakeHostName, 'g'), hostName);
-	return content;
-}
 
 function generateFakeInfo(content, userID, hostName) {
 	content = content.replace(new RegExp(userID, 'g'), fakeUserID).replace(new RegExp(hostName, 'g'), fakeHostName);
 	return content;
 }
-
-function isValidIPv4(address) {
-	const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-	return ipv4Regex.test(address);
-}
-
 function generateDynamicUUID(key) {
     function getWeekOfYear() {
         const now = new Date();
@@ -878,6 +805,38 @@ function generateDynamicUUID(key) {
     const expirationDateString = `到期时间(UTC): ${expirationDateUTC.toISOString().slice(0, 19).replace('T', ' ')} (UTC+8): ${endTime.toISOString().slice(0, 19).replace('T', ' ')}\n`;
 
     return Promise.all([currentUUIDPromise, previousUUIDPromise, expirationDateString]);
+}
+function getRandomProxyByMatch(CC, SOCKS5Data) {
+	// 将匹配字符串转换为小写
+	const lowerCaseMatch = CC.toLowerCase();
+	
+	// 过滤出所有以指定匹配字符串结尾的代理字符串
+	let filteredProxies = SOCKS5Data.filter(proxy => proxy.toLowerCase().endsWith(`#${lowerCaseMatch}`));
+	
+	// 如果没有匹配的代理，尝试匹配 "US"
+	if (filteredProxies.length === 0) {
+		filteredProxies = SOCKS5Data.filter(proxy => proxy.toLowerCase().endsWith(`#us`));
+	}
+	
+	// 如果还是没有匹配的代理，从整个代理列表中随机选择一个
+	if (filteredProxies.length === 0) {
+		return SOCKS5Data[Math.floor(Math.random() * SOCKS5Data.length)];
+	}
+	
+	// 从匹配的代理中随机选择一个并返回
+	const randomProxy = filteredProxies[Math.floor(Math.random() * filteredProxies.length)];
+	return randomProxy;
+}
+
+function isValidIPv4(address) {
+	const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+	return ipv4Regex.test(address);
+}
+
+
+function revertFakeInfo(content, userID, hostName) {
+	content = content.replace(new RegExp(fakeUserID, 'g'), userID).replace(new RegExp(fakeHostName, 'g'), hostName);
+	return content;
 }
 
 async function getLink(重新汇总所有链接) {
