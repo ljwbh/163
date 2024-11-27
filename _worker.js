@@ -10,7 +10,6 @@ let addresses = [
 	'download.yunzhongzhuan.com:443#yunzhongzhuan.com',
 	'www.visa.com.hk:443#visa.com.hk',
 	'www.udacity.com:443#udacity.com',
-	'www.visa.com:443#visa.com',
 ];
 // 设置优选地址api接口
 let addressesapi = [
