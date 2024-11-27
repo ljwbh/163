@@ -21,14 +21,6 @@ let addressesapi = [
 // 设置优选地址，不带端口号默认80，noTLS订阅生成
 let addressesnotls = [
         'notls.jw163.us.kg:80#优选',	
-        //'thaddeus.ns.cloudflare.com:80#thaddeus',
-	//'thaddeus.ns.cloudflare.com:80#thaddeus',
-	//'www.iios.me:80#www.iios.me',
-	//'www.iios.club:80#www.iios.club',
-	//'www.visa.com.sg:80#visa.com.sg',
-	//'www.visa.com.tw:80#visa.com.tw',
-	//'www.visa.co.jp:80#visa.co.jp',
-	//'www.digitalocean.com:80#digitalocean',
 ];
 
 // 设置优选noTLS地址api接口
